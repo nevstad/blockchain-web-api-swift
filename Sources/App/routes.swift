@@ -4,8 +4,10 @@ import Vapor
 public func routes(_ router: Router) throws {
     let blockchainController = BlockchainController()
 
-    router.get("api", "blockchain", use: blockchainController.chain)
-    router.get("api", "mine", String.parameter, use: blockchainController.mine)
-    router.post(Transaction.self, at: "api", "send", use: blockchainController.send)
-    router.get("api", "balance", String.parameter, use: blockchainController.balance)
+    router.group("api", "v1") { group in
+        group.get("blockchain", use: blockchainController.chain)
+        group.get("balance", String.parameter, use: blockchainController.balance)
+        group.get("mine", String.parameter, use: blockchainController.mine)
+        group.post(Transaction.self, at: "send", use: blockchainController.send)
+    }
 }

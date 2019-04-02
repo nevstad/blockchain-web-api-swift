@@ -7,6 +7,8 @@
 
 import Vapor
 
+typealias BlockData = (index: Int, timestamp: Double, transactions: [Transaction])
+
 final class Block: Content {
     /// The index of this block in the chain
     let index: Int
@@ -18,7 +20,7 @@ final class Block: Content {
     let transactions: [Transaction]
     
     /// The proof used to solve the Proof of Work for this block
-    let proof: Int
+    let nonce: Int
     
     /// The hash of this block on the chain, becomes `previousHash` for the next block.
     /// THe hash is a SHA256 generated hash bashed on all other instance variables.
@@ -27,13 +29,23 @@ final class Block: Content {
     /// The hash of the previous block
     let previousHash: Data
     
-    init(index: Int, timestamp: Double, transactions: [Transaction], proof: Int, previousHash: Data) {
+    /// Convenience getter for data fields used in Proof of Work
+    var blockData: BlockData {
+        get {
+            return (index: index, timestamp: timestamp, transactions: transactions)
+        }
+    }
+    
+    init(index: Int, timestamp: Double, transactions: [Transaction], nonce: Int, hash: Data, previousHash: Data) {
         self.index = index
         self.timestamp = timestamp
         self.transactions = transactions
-        self.proof = proof
+        self.nonce = nonce
+        self.hash = hash
         self.previousHash = previousHash
-        let transactionsJSON = String(describing: String(data: try! JSONEncoder().encode(transactions), encoding: .utf8))
-        self.hash = "\(index)\(timestamp)\(transactionsJSON)\(proof)\(previousHash)".data(using: .utf8)!.sha256()
+    }
+    
+    convenience init(blockData bd: BlockData, nonce: Int, hash: Data, previousHash: Data) {
+        self.init(index: bd.index, timestamp: bd.timestamp, transactions: bd.transactions, nonce: nonce, hash: hash, previousHash: previousHash)
     }
 }

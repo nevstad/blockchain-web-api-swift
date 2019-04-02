@@ -21,10 +21,7 @@ class BlockchainService {
     func mine(recipient: String, completion: @escaping (Block) -> ()) {
         DispatchQueue.global(qos: .default).async {
             let lastBlock = self.blockchain.lastBlock()
-            let proof = ProofOfWork.calculateNextProof(lastProof: lastBlock.proof)
-            self.blockchain.createTransaction(sender: Blockchain.blockRewardPoolAddress, recipient: recipient, value: Blockchain.blockReward)
-            let block = self.blockchain.createBlock(proof: proof)
-            completion(block)
+            completion(self.blockchain.mineBlock(previousHash: lastBlock.hash, recipient: recipient))
         }
     }
     
