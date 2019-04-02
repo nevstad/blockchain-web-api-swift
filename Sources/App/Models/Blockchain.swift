@@ -16,7 +16,7 @@ final class Blockchain: Content {
     static let blockRewardPoolAddress = "0xd34db33fl337h4x0r5"
     
     /// Circulating supply
-    let circulatingSupply = blockReward * 10_000.0
+    let circulatingSupply = blockReward * 100_000.0
     
     /// Transation pool holds all transactions to go into the next block
     private let mempool = TransactionPool()
@@ -24,13 +24,24 @@ final class Blockchain: Content {
     /// The blockchain
     private(set) var chain: [Block] = []
     
+    private enum CodingKeys: CodingKey {
+        case circulatingSupply
+        case mempool
+        case chain
+    }
     
     /// Initialies our blockchain with a genesis block, placing circulating supply in the reward pool,
     /// and awarding the first block to Magnus
     init() {
         createTransaction(sender: "0x0", recipient: Blockchain.blockRewardPoolAddress, value: circulatingSupply)
-        createTransaction(sender: Blockchain.blockRewardPoolAddress, recipient: "Magnus", value: Blockchain.blockReward)
-        createBlock(proof: 1337)
+        mineGenesisBlock()
+    }
+
+    /// Mines our genesis block
+    @discardableResult
+    private func mineGenesisBlock() -> Block {
+        let firstHash = "0x0".data(using: .utf8)!
+        return mineBlock(previousHash: firstHash, recipient: "Magnus")
     }
     
     /// Create a transaction to be added to the next block.
@@ -49,17 +60,30 @@ final class Blockchain: Content {
     /// Create a new block in the chain, adding transactions curently in the mempool to the block
     /// - Parameter proof: The proof of the PoW
     @discardableResult
-    func createBlock(proof: Int) -> Block {
-        let previousHash = chain.count > 0 ? self.lastBlock().hash : "0".data(using: .utf8)!
+    func createBlock(nonce: Int, hash: Data, previousHash: Data, blockData: BlockData) -> Block {
         let block = Block(
-            index: chain.count + 1,
-            timestamp: Date().timeIntervalSince1970,
-            transactions: self.mempool.drain(),
-            proof: proof,
+            index: blockData.index,
+            timestamp: blockData.timestamp,
+            transactions: blockData.transactions,
+            nonce: nonce,
+            hash: hash,
             previousHash: previousHash
         )
         chain.append(block)
         return block
+    }
+    
+    /// Mines the next block using Proof of Work
+    /// - Parameter recipient: The miners address for block reward
+    func mineBlock(previousHash: Data, recipient: String) -> Block {
+        createTransaction(sender: Blockchain.blockRewardPoolAddress, recipient: recipient, value: Blockchain.blockReward)
+        let blockData = (
+            index: chain.count + 1,
+            timestamp: Date().timeIntervalSince1970,
+            transactions: mempool.drain()
+        )
+        let work = ProofOfWork.work(prevHash: previousHash, blockData: blockData)
+        return createBlock(nonce: work.nonce, hash: work.hash, previousHash: previousHash, blockData: blockData)
     }
     
     /// Returns the last block in the blockchain. Fatal error if we have no blocks.
@@ -71,6 +95,7 @@ final class Blockchain: Content {
     }
     
     /// A very un-optimezed way to iterate every transaction in history to calculate the balance for an address
+    /// - Parameter address: The address whose balance to calculate
     func balance(for address: String) -> Double {
         var balance = 0.0
         for block in chain {
@@ -105,5 +130,3 @@ class TransactionPool: Codable {
         return txs
     }
 }
-
-
