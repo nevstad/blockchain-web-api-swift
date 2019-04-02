@@ -33,15 +33,14 @@ final class Blockchain: Content {
     /// Initialies our blockchain with a genesis block, placing circulating supply in the reward pool,
     /// and awarding the first block to Magnus
     init() {
-        createTransaction(sender: "0x0", recipient: Blockchain.blockRewardPoolAddress, value: circulatingSupply)
         mineGenesisBlock()
     }
 
     /// Mines our genesis block
     @discardableResult
     private func mineGenesisBlock() -> Block {
-        let firstHash = "0x0".data(using: .utf8)!
-        return mineBlock(previousHash: firstHash, recipient: "Magnus")
+        createTransaction(sender: "0x0", recipient: Blockchain.blockRewardPoolAddress, value: circulatingSupply)
+        return mineBlock(previousHash: Data(), recipient: "Magnus")
     }
     
     /// Create a transaction to be added to the next block.
@@ -61,14 +60,7 @@ final class Blockchain: Content {
     /// - Parameter proof: The proof of the PoW
     @discardableResult
     func createBlock(nonce: Int, hash: Data, previousHash: Data, blockData: BlockData) -> Block {
-        let block = Block(
-            index: blockData.index,
-            timestamp: blockData.timestamp,
-            transactions: blockData.transactions,
-            nonce: nonce,
-            hash: hash,
-            previousHash: previousHash
-        )
+        let block = Block(blockData: blockData, nonce: nonce, hash: hash, previousHash: previousHash)
         chain.append(block)
         return block
     }
@@ -82,8 +74,8 @@ final class Blockchain: Content {
             timestamp: Date().timeIntervalSince1970,
             transactions: mempool.drain()
         )
-        let work = ProofOfWork.work(prevHash: previousHash, blockData: blockData)
-        return createBlock(nonce: work.nonce, hash: work.hash, previousHash: previousHash, blockData: blockData)
+        let proof = ProofOfWork.work(prevHash: previousHash, blockData: blockData)
+        return createBlock(nonce: proof.nonce, hash: proof.hash, previousHash: previousHash, blockData: blockData)
     }
     
     /// Returns the last block in the blockchain. Fatal error if we have no blocks.

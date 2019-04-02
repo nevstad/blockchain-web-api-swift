@@ -44,4 +44,8 @@ final class Block: Content {
         self.hash = hash
         self.previousHash = previousHash
     }
+    
+    convenience init(blockData bd: BlockData, nonce: Int, hash: Data, previousHash: Data) {
+        self.init(index: bd.index, timestamp: bd.timestamp, transactions: bd.transactions, nonce: nonce, hash: hash, previousHash: previousHash)
+    }
 }
