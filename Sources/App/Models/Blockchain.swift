@@ -53,8 +53,8 @@ final class Blockchain: Content {
     ///     - value: The value to transact
     /// - Returns: The index of the block to whitch this transaction will be added
     @discardableResult
-    func createTransaction(sender: String, recipient: String, value: Double) -> Int {
-        let transaction = Transaction(sender: sender, recipient: recipient, value: value)
+    func createTransaction(sender: String, recipient: String, value: Double, data: Data? = nil) -> Int {
+        let transaction = Transaction(sender: sender, recipient: recipient, value: value, data: data)
         self.mempool.addTransaction(transaction)
         return self.chain.count + 1
     }

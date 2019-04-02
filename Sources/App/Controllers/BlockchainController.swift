@@ -23,7 +23,7 @@ final class BlockchainController {
     }
     
     func send(req: Request, transaction: Transaction) -> Int {
-        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value)
+        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
     }
     
     func balance(req: Request) -> BalanceResponse {

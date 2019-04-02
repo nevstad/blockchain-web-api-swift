@@ -11,4 +11,5 @@ struct Transaction: Content {
     let sender: String
     let recipient: String
     let value: Double
+    let data: Data?
 }
