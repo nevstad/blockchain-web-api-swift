@@ -7,7 +7,6 @@
 
 import Vapor
 
-
 final class Blockchain: Content {
     /// Block reward for a mined block
     static let blockReward = 1337.0
@@ -24,19 +23,23 @@ final class Blockchain: Content {
     /// The blockchain
     private(set) var chain: [Block] = []
     
+    /// Proof of Work Algorithm
+    private let pow = ProofOfWork(difficulty: 3)
+    
+
     private enum CodingKeys: CodingKey {
         case circulatingSupply
         case mempool
         case chain
     }
     
-    /// Initialies our blockchain with a genesis block, placing circulating supply in the reward pool,
-    /// and awarding the first block to Magnus
+    /// Initialises our blockchain with a genesis block
     init() {
         mineGenesisBlock()
     }
 
-    /// Mines our genesis block
+    /// Mines our genesis block placing circulating supply in the reward pool,
+    /// and awarding the first block to Magnus
     @discardableResult
     private func mineGenesisBlock() -> Block {
         createTransaction(sender: "0x0", recipient: Blockchain.blockRewardPoolAddress, value: circulatingSupply)
@@ -74,7 +77,7 @@ final class Blockchain: Content {
             timestamp: Date().timeIntervalSince1970,
             transactions: mempool.drain()
         )
-        let proof = ProofOfWork.work(prevHash: previousHash, blockData: blockData)
+        let proof = pow.work(prevHash: previousHash, blockData: blockData)
         return createBlock(nonce: proof.nonce, hash: proof.hash, previousHash: previousHash, blockData: blockData)
     }
     

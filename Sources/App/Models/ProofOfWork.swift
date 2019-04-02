@@ -7,13 +7,35 @@
 
 import Foundation
 
-enum ProofOfWork {
-    static private let difficulty = "000" // The more 0s, the higher the difficulty
+struct ProofOfWork {
+    
+    struct Difficulty {
+        let level: Int
+        private let prefix: String
+
+        init(level: Int) {
+            self.level = level
+            self.prefix = (1...level).map { _ in "0" }.reduce("", +)
+        }
+        
+        /// Validate a hash String if it has `difficulty` number of leading "0"
+        func validate(hash: Data) -> Bool {
+            return hash.hexDigest().hasPrefix(prefix)
+        }
+    }
+    
+    /// Difficulty determines the level of difficulty of the PoW Algorithm
+    let difficulty: Difficulty
+
+    
+    init(difficulty: Int) {
+        self.difficulty = Difficulty(level: difficulty)
+    }
     
     /// Simple Proof of Work Algorithm, based on HashCash/Bitcoin
     /// - Parameter prevHash: The previous block's hash
     /// - Returns: A valid SHA-256 hash & nonce after success, invalid SHA-256 hash & nonce if unsuccessful avter Int.max tries
-    static func work(prevHash: Data, blockData: BlockData) -> (hash: Data, nonce: Int) {
+    func work(prevHash: Data, blockData: BlockData) -> (hash: Data, nonce: Int) {
         var nonce = 0
         var hash = prepareData(prevHash: prevHash, nonce: nonce, blockData: blockData).sha256()
         while nonce < Int.max {
@@ -27,16 +49,16 @@ enum ProofOfWork {
     }
     
     /// Builds data based on a previousHash, nonce and BlockData to be used for generating hashes
-    static private func prepareData(prevHash: Data, nonce: Int, blockData: BlockData) -> Data {
+    private func prepareData(prevHash: Data, nonce: Int, blockData: BlockData) -> Data {
         var data = prevHash
         data.append("\(nonce)\(blockData.index)\(blockData.timestamp)".data(using: .utf8)!)
         data.append(try! JSONEncoder().encode(blockData.transactions))
         return data
     }
     
-    /// Validates that a block was mined correctly according to the PoW algorithm
+    /// Validates that a block was mined correctly according to the PoW Algorithm
     /// - SHA-256 Hashing this block's data should produce a valid PoW hash
-    static func validate(block: Block) -> Bool {
+    func validate(block: Block) -> Bool {
         let previousHash = block.previousHash
         let nonce = block.nonce
         let blockData = block.blockData
@@ -46,7 +68,7 @@ enum ProofOfWork {
     }
     
     /// Validates that a hash has passed the requirement of the correct number of starting 0s
-    static func validate(hash: Data) -> Bool {
-        return hash.hexDigest().prefix(difficulty.count) == difficulty
+    func validate(hash: Data) -> Bool {
+        return difficulty.validate(hash: hash)
     }
 }
