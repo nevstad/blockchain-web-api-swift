@@ -8,6 +8,7 @@ public func routes(_ router: Router) throws {
         group.get("blockchain", use: blockchainController.chain)
         group.get("balance", String.parameter, use: blockchainController.balance)
         group.get("mine", String.parameter, use: blockchainController.mine)
-        group.post(Transaction.self, at: "send", use: blockchainController.send)
+        group.post([Transaction].self, at: "send", use: blockchainController.send)
+        group.get("mempool", use: blockchainController.mempool)
     }
 }

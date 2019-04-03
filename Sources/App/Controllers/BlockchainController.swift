@@ -22,10 +22,24 @@ final class BlockchainController {
         }
     }
     
+    func chain(req: Request) -> Blockchain {
+        return service.chain()
+    }
+    
     func send(req: Request, transaction: Transaction) -> Int {
         return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
     }
+
+    func send(req: Request, transactions: [Transaction]) -> [Int] {
+        return transactions.map { transaction in
+            service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data) }
+    }
+
     
+    func mempool(req: Request) -> TransactionPool {
+        return service.chain().mempool
+    }
+
     func balance(req: Request) -> BalanceResponse {
         guard let address = try? req.parameters.next(String.self) else {
             return BalanceResponse.invalid()
@@ -39,13 +53,7 @@ final class BlockchainController {
             promise.fail(error: APIError.missingParameter("recipient"))
             return promise.futureResult
         }
-        service.mine(recipient: recipient) { block in
-            promise.succeed(result: block)
-        }
+        service.mine(recipient: recipient, completion: promise.succeed)
         return promise.futureResult
-    }
-    
-    func chain(req: Request) -> Blockchain {
-        return service.chain()
     }
 }

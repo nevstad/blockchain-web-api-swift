@@ -18,13 +18,13 @@ final class Blockchain: Content {
     let circulatingSupply = blockReward * 100_000.0
     
     /// Transation pool holds all transactions to go into the next block
-    private let mempool = TransactionPool()
+    private(set) var mempool = TransactionPool()
     
     /// The blockchain
     private(set) var chain: [Block] = []
     
     /// Proof of Work Algorithm
-    private let pow = ProofOfWork(difficulty: 3)
+    private(set) var pow = ProofOfWork(difficulty: 3)
     
 
     private enum CodingKeys: CodingKey {
@@ -107,7 +107,7 @@ final class Blockchain: Content {
 }
 
 
-class TransactionPool: Codable {
+final class TransactionPool: Content {
     /// Transactions in the pool
     private var transactions = [Transaction]()
     
