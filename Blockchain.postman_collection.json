@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "99e92457-1c6e-4204-aca3-4f117e25ea5d",
+		"name": "Blockchain",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Blockchain",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/blockchain",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Transactions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n\t{\n\t\t\"sender\": \"Magnus\",\n\t\t\"recipient\": \"VonHanno\",\n\t\t\"value\": 250\n\t},\n\t{\n\t\t\"sender\": \"VonHanno\",\n\t\t\"recipient\": \"Magnus\",\n\t\t\"value\": 100\n\t}\n]\n\n\t\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/send",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mempool",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/mempool",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"mempool"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mine Block",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/mine/Magnus",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"mine",
+						"Magnus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Balance (maggs)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/balance/Magnus",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"balance",
+						"Magnus"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
