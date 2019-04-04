@@ -7,20 +7,15 @@
 
 import Vapor
 
-typealias BlockData = (index: Int, timestamp: Double, transactions: [Transaction])
-
-final class Block: Content {
-    /// The index of this block in the chain
-    let index: Int
-    
+struct Block: Serializable, Content {
     /// The timestamp for when the block was generated and added to the chain
-    let timestamp: Double
+    let timestamp: UInt32
     
     /// The transactions on this block
     let transactions: [Transaction]
     
     /// The proof used to solve the Proof of Work for this block
-    let nonce: Int
+    let nonce: UInt32
     
     /// The hash of this block on the chain, becomes `previousHash` for the next block.
     /// THe hash is a SHA256 generated hash bashed on all other instance variables.
@@ -29,23 +24,12 @@ final class Block: Content {
     /// The hash of the previous block
     let previousHash: Data
     
-    /// Convenience getter for data fields used in Proof of Work
-    var blockData: BlockData {
-        get {
-            return (index: index, timestamp: timestamp, transactions: transactions)
-        }
-    }
-    
-    init(index: Int, timestamp: Double, transactions: [Transaction], nonce: Int, hash: Data, previousHash: Data) {
-        self.index = index
-        self.timestamp = timestamp
-        self.transactions = transactions
-        self.nonce = nonce
-        self.hash = hash
-        self.previousHash = previousHash
-    }
-    
-    convenience init(blockData bd: BlockData, nonce: Int, hash: Data, previousHash: Data) {
-        self.init(index: bd.index, timestamp: bd.timestamp, transactions: bd.transactions, nonce: nonce, hash: hash, previousHash: previousHash)
+    func serialized() -> Data {
+        var data = Data()
+        data += previousHash
+        data += timestamp
+        data += nonce
+        data += transactions.flatMap { $0.serialized() }
+        return data
     }
 }

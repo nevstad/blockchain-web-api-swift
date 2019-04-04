@@ -7,16 +7,15 @@
 
 import Foundation
 import CommonCrypto
-import Vapor
 
 final class Wallet {
     let privateKey: Data
     let publicKey: Data
-    let address: String
+    var address: String
     
     init?() {
         let query: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrKeyType as String: kSecAttrKeyTypeECDSA,
             kSecAttrKeySizeInBits as String: 256 as AnyObject
         ]
         var privateKey: SecKey?
@@ -44,6 +43,6 @@ final class Wallet {
         
         self.privateKey = privKeyData
         self.publicKey = pubKeyData
-        self.address = pubKeyData.sha256().hexDigest()
+        self.address = pubKeyData.sha256().hex
     }
 }

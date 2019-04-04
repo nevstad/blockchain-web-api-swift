@@ -16,9 +16,9 @@ final class BlockchainController {
     
     struct BalanceResponse: Content {
         let address: String
-        let balance: Double
+        let balance: UInt64
         static func invalid() -> BalanceResponse {
-            return BalanceResponse(address: "Invalid", balance: -1)
+            return BalanceResponse(address: "Invalid", balance: 0)
         }
     }
     
@@ -26,14 +26,14 @@ final class BlockchainController {
         return service.chain()
     }
     
-    func send(req: Request, transaction: Transaction) -> Int {
-        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
-    }
+//    func send(req: Request, transaction: Transaction) -> Int {
+//        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
+//    }
 
-    func send(req: Request, transactions: [Transaction]) -> [Int] {
-        return transactions.map { transaction in
-            service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data) }
-    }
+//    func send(req: Request, transactions: [Transaction]) -> [Int] {
+//        return transactions.map { transaction in
+//            service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data) }
+//    }
 
     
     func mempool(req: Request) -> TransactionPool {

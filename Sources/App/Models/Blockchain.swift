@@ -7,15 +7,16 @@
 
 import Vapor
 
+
 final class Blockchain: Content {
     /// Block reward for a mined block
-    static let blockReward = 1337.0
+    static let blockReward: UInt64 = 1337
     
     /// Block reward wallet address, owner of circulating supply
     static let blockRewardPoolAddress = "0xd34db33fl337h4x0r5"
     
     /// Circulating supply
-    let circulatingSupply = blockReward * 100_000.0
+    let circulatingSupply: UInt64 = blockReward * 100_000
     
     /// Transation pool holds all transactions to go into the next block
     private(set) var mempool = TransactionPool()
@@ -53,17 +54,18 @@ final class Blockchain: Content {
     ///     - value: The value to transact
     /// - Returns: The index of the block to whitch this transaction will be added
     @discardableResult
-    func createTransaction(sender: String, recipient: String, value: Double, data: Data? = nil) -> Int {
-        let transaction = Transaction(sender: sender, recipient: recipient, value: value, data: data)
-        self.mempool.addTransaction(transaction)
+    func createTransaction(sender: String, recipient: String, value: UInt64, data: Data? = nil) -> Int {
+        
+//        let transaction = Transaction(sender: sender, recipient: recipient, value: value, data: data)
+//        self.mempool.addTransaction(transaction)
         return self.chain.count + 1
     }
     
     /// Create a new block in the chain, adding transactions curently in the mempool to the block
     /// - Parameter proof: The proof of the PoW
     @discardableResult
-    func createBlock(nonce: Int, hash: Data, previousHash: Data, blockData: BlockData) -> Block {
-        let block = Block(blockData: blockData, nonce: nonce, hash: hash, previousHash: previousHash)
+    func createBlock(nonce: UInt32, hash: Data, previousHash: Data, timestamp: UInt32, transactions: [Transaction]) -> Block {
+        let block = Block(timestamp: timestamp, transactions: transactions, nonce: nonce, hash: hash, previousHash: previousHash)
         chain.append(block)
         return block
     }
@@ -72,13 +74,10 @@ final class Blockchain: Content {
     /// - Parameter recipient: The miners address for block reward
     func mineBlock(previousHash: Data, recipient: String) -> Block {
         createTransaction(sender: Blockchain.blockRewardPoolAddress, recipient: recipient, value: Blockchain.blockReward)
-        let blockData = (
-            index: chain.count + 1,
-            timestamp: Date().timeIntervalSince1970,
-            transactions: mempool.drain()
-        )
-        let proof = pow.work(prevHash: previousHash, blockData: blockData)
-        return createBlock(nonce: proof.nonce, hash: proof.hash, previousHash: previousHash, blockData: blockData)
+        let timestamp = UInt32(Date().timeIntervalSince1970)
+        let transactions = mempool.drain()
+        let proof = pow.work(prevHash: previousHash, timestamp: timestamp, transactions: transactions)
+        return createBlock(nonce: proof.nonce, hash: proof.hash, previousHash: previousHash, timestamp: timestamp, transactions: transactions)
     }
     
     /// Returns the last block in the blockchain. Fatal error if we have no blocks.
@@ -91,14 +90,14 @@ final class Blockchain: Content {
     
     /// A very un-optimezed way to iterate every transaction in history to calculate the balance for an address
     /// - Parameter address: The address whose balance to calculate
-    func balance(for address: String) -> Double {
-        var balance = 0.0
+    func balance(for address: String) -> UInt64 {
+        var balance: UInt64 = 0
         for block in chain {
             for transaction in block.transactions {
-                if transaction.sender == address {
-                    balance -= transaction.value
-                } else if transaction.recipient == address {
-                    balance += transaction.value
+                for output in transaction.outputs {
+                    if output.lockingScript == address {
+                        balance += output.value
+                    }
                 }
             }
         }

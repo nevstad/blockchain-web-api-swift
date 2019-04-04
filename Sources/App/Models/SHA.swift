@@ -21,7 +21,7 @@ extension Data {
     }
     
     /// Return a hex digest of `self`
-    func hexDigest() -> String {
-        return self.map({ String(format: "%02x", $0) }).joined()
+    public var hex: String {
+        return reduce("") { $0 + String(format: "%02x", $1) }
     }
 }

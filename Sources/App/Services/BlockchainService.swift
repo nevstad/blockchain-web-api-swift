@@ -10,11 +10,11 @@ import Foundation
 class BlockchainService {
     private let blockchain = Blockchain()
     
-    func send(sender: String, recipient: String, value: Double, data: Data?) -> Int {
-        return blockchain.createTransaction(sender: sender, recipient: recipient, value: value, data: data)
-    }
+//    func send(sender: String, recipient: String, value: UInt64, data: Data?) -> Int {
+//        return blockchain.createTransaction(sender: sender, recipient: recipient, value: value, data: data)
+//    }
     
-    func balance(address: String) -> Double {
+    func balance(address: String) -> UInt64 {
         return blockchain.balance(for: address)
     }
     
