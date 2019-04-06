@@ -9,64 +9,6 @@ import Vapor
 import Crypto
 
 
-/// The out-point of a transaction, referened in TransactionInput
-struct TransactionOutPoint: Serializable, Content {
-    /// The hash of the referenced transaction
-    let hash: Data
-    
-    /// Index of the specified output in the transaction
-    let index: UInt32
-    
-    func serialized() -> Data {
-        var data = Data()
-        data += hash
-        data += index
-        return data
-    }
-}
-
-/// Inputs to a transaction
-struct TransactionInput: Serializable, Content {
-    // A reference to the previous Transaction output
-    let previousOutput: TransactionOutPoint
-    
-    /// Computational Script for confirming transaction authorization, usually the sender address/pubkey
-    let signatureScript: String
-    
-    /// Transaction version as defined by the sender, allows for modifying transaction before it's added to a block
-    let sequence: UInt32
-    
-    /// Coinbase transactions have no inputs, and are typically used for block rewards
-    var isCoinbase: Bool {
-        get {
-            return previousOutput.hash == Data()
-        }
-    }
-    
-    func serialized() -> Data {
-        var data = Data()
-        data += previousOutput.serialized()
-        data += signatureScript
-        data += sequence
-        return data
-    }
-}
-
-struct TransactionOutput: Serializable, Content {
-    /// Transaction value
-    let value: UInt64
-    
-    // Usually contains the public key of the receiver, for claiming output
-    let lockingScript: String
-    
-    func serialized() -> Data {
-        var data = Data()
-        data += value
-        data += lockingScript.data(using: .utf8)!
-        return data
-    }
-}
-
 struct Transaction: Serializable, Content {
     /// Transaction inputs, which are sources for coins
     let inputs: [TransactionInput]
@@ -98,5 +40,13 @@ struct Transaction: Serializable, Content {
         data += inputs.flatMap { $0.serialized() }
         data += outputs.flatMap { $0.serialized() }
         return data
+    }
+    
+    static func coinbase(address: Data, blockValue: UInt64) -> Transaction {
+        let coinbaseTxOutPoint = TransactionOutPoint(hash: Data(), index: 0)
+        let coinbaseTxIn = TransactionInput(previousOutput: coinbaseTxOutPoint, publicKey: address, signature: Data())
+        let txIns:[TransactionInput] = [coinbaseTxIn]
+        let txOuts:[TransactionOutput] = [TransactionOutput(value: blockValue, address: address)]
+        return Transaction(inputs: txIns, outputs: txOuts)
     }
 }

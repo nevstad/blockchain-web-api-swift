@@ -14,6 +14,11 @@ final class BlockchainController {
         case missingParameter(String)
     }
     
+    struct TransactionRequest: Content {
+        let address: String
+        let value: UInt64
+    }
+    
     struct BalanceResponse: Content {
         let address: String
         let balance: UInt64
@@ -26,34 +31,34 @@ final class BlockchainController {
         return service.chain()
     }
     
-//    func send(req: Request, transaction: Transaction) -> Int {
-//        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
-//    }
-
-//    func send(req: Request, transactions: [Transaction]) -> [Int] {
-//        return transactions.map { transaction in
-//            service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data) }
-//    }
-
+    func send(req: Request, transactions: [TransactionRequest]) -> [Int] {
+        return transactions.map { transaction in
+            guard let validAddress = Data(hex: transaction.address) else {
+                return -1
+            }
+            return service.send(recipient: validAddress, value: transaction.value)
+        }
+    }
     
-    func mempool(req: Request) -> TransactionPool {
+    func mempool(req: Request) -> [Transaction] {
         return service.chain().mempool
     }
 
     func balance(req: Request) -> BalanceResponse {
-        guard let address = try? req.parameters.next(String.self) else {
+        guard let address = try? req.parameters.next(String.self), let validAddress = Data(hex: address) else {
             return BalanceResponse.invalid()
         }
-        return BalanceResponse(address: address, balance: service.balance(address: address))
+        return BalanceResponse(address: address, balance: service.balance(address: validAddress))
     }
     
     func mine(req: Request) -> Future<Block> {
         let promise: EventLoopPromise<Block> = req.eventLoop.newPromise()
-        guard let recipient = try? req.parameters.next(String.self) else {
-            promise.fail(error: APIError.missingParameter("recipient"))
-            return promise.futureResult
-        }
-        service.mine(recipient: recipient, completion: promise.succeed)
+        service.mine(completion: promise.succeed)
         return promise.futureResult
+    }
+    
+    func wallet(req: Request) -> BalanceResponse {
+        let address = service.address()
+        return BalanceResponse(address: address.hex, balance: service.balance(address: address))
     }
 }

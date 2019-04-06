@@ -8,20 +8,40 @@
 import Foundation
 
 class BlockchainService {
-    private let blockchain = Blockchain()
+    private let wallet: Wallet
+    private let blockchain: Blockchain
     
-//    func send(sender: String, recipient: String, value: UInt64, data: Data?) -> Int {
-//        return blockchain.createTransaction(sender: sender, recipient: recipient, value: value, data: data)
-//    }
+    init() {
+        self.wallet = Wallet()!
+        self.blockchain = Blockchain(minerAddress: self.wallet.address)
+    }
     
-    func balance(address: String) -> UInt64 {
+    func address() -> Data {
+        return wallet.address
+    }
+    
+    func send(recipient: Data, value: UInt64) -> Int {
+        do {
+            return try blockchain.createTransaction(sender: wallet, recipientAddress: recipient, value: value)
+        } catch Blockchain.TxError.insufficientBalance {
+            print("Insufficient balance to send \(value) to \(recipient.hex)")
+            return -1
+        } catch Blockchain.TxError.unverifiedTransaction {
+            print("Signing failed when trying to send \(value) to \(recipient.hex)")
+            return -1
+        } catch {
+            return -1
+        }
+    }
+    
+    func balance(address: Data) -> UInt64 {
         return blockchain.balance(for: address)
     }
     
-    func mine(recipient: String, completion: @escaping (Block) -> ()) {
+    func mine(completion: @escaping (Block) -> ()) {
         DispatchQueue.global(qos: .default).async {
             let lastBlock = self.blockchain.lastBlock()
-            completion(self.blockchain.mineBlock(previousHash: lastBlock.hash, recipient: recipient))
+            completion(self.blockchain.mineBlock(previousHash: lastBlock.hash, minerAddress: self.wallet.address))
         }
     }
     
