@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "BlockchainSwift",
-        "repositoryURL": "https://github.com/nevstad/BlockchainSwift.git",
+        "repositoryURL": "https://github.com/nevstad/blockchain-swift.git",
         "state": {
-          "branch": "master",
-          "revision": "acab4b38078b6dea9275fe333c5943aea4b7aa06",
-          "version": null
+          "branch": null,
+          "revision": "4d6f590045f592f158090a9c23646f788bafafbf",
+          "version": "0.1.0"
         }
       },
       {

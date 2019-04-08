@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-sqlite.git", from: "3.0.0"),
 
         // ⛓ Blockchain implementation written in swift-tools-version
-        .package(url: "https://github.com/nevstad/BlockchainSwift.git", .branch("master"))
+        .package(url: "https://github.com/nevstad/blockchain-swift.git", from: "0.1.0")
     ],
     targets: [
         .target(name: "App", dependencies: ["FluentSQLite", "Vapor", "BlockchainSwift"]),
