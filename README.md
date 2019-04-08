@@ -1,18 +1,6 @@
-# ⛓ A simple Blockchain implementation for macOS, written in Swift, running on Vapor.
+# ⛓ BlockchainSwift, running on Vapor.
 
-A Blockchain that loosely mimics Bitcoin's key features:
-
-## ✅ Features
-
-* 🎭 Secure and anonymous Wallets
-* 🔐 Verified Transations
-* 🛠 A Proof-of-Work system
-
-
-## ⛔️ Missing features: 
-
-* 🗄 Persitent block store
-* 🌐 Decentralization
+A web API implentation of [BlockchainSwift](https://github.com/nevstad/BlockchainSwift) running on [Vapor](https://github.com/vapor/vapor).
 
 ## 🤖 Building
 Don't use `vapor xcode` as this sets the `macOS` target to `10.10` and we need `10.12` for ECDSA. Instead use the specified `Package.xcconfig` and run:
@@ -33,5 +21,6 @@ Once running, the API has the following endpoints:
 
 A great tool for interacting with APIs is [Postman](https://www.getpostman.com/), and once you have it installed you can easily import `Blockchain.postman_collection.json` and get started.
 
-### 📣 Shoutout
-Big thanks for inspiration and learning from [Ivan Kuznetsov's Building Blockchain in Go](https://github.com/Jeiwan/blockchain_go/tree/part_4) and [BitcoinKit](https://github.com/yenom/BitcoinKit).
+## 🤞🏻 Testing
+
+To run the tests, make sure the `.swift` files found in `Sources/App/Model` are added to the `AppTests` target.

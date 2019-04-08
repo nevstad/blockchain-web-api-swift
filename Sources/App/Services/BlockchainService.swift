@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BlockchainSwift
 
 class BlockchainService {
     private let wallet: Wallet

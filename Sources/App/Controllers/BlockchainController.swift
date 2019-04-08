@@ -6,29 +6,21 @@
 //
 
 import Vapor
+import BlockchainSwift
 
 final class BlockchainController {
     let service = BlockchainService()
     
     enum APIError: Error {
         case missingParameter(String)
+        case invalidParameter(String)
     }
+
+
     
-    struct TransactionRequest: Content {
-        let address: String
-        let value: UInt64
-    }
     
-    struct BalanceResponse: Content {
-        let address: String
-        let balance: UInt64
-        static func invalid() -> BalanceResponse {
-            return BalanceResponse(address: "Invalid", balance: 0)
-        }
-    }
-    
-    func chain(req: Request) -> Blockchain {
-        return service.chain()
+    func chain(req: Request) -> BlockchainResponse {
+        return BlockchainResponse(service.chain())
     }
     
     func send(req: Request, transactions: [TransactionRequest]) -> [Int] {
@@ -40,25 +32,31 @@ final class BlockchainController {
         }
     }
     
-    func mempool(req: Request) -> [Transaction] {
-        return service.chain().mempool
+    func mempool(req: Request) -> [TxResponse] {
+        return service.chain().mempool.map { TxResponse($0) }
     }
 
-    func balance(req: Request) -> BalanceResponse {
-        guard let address = try? req.parameters.next(String.self), let validAddress = Data(hex: address) else {
-            return BalanceResponse.invalid()
+    func mine(req: Request) -> Future<BlockResponse> {
+        let promise: EventLoopPromise<BlockResponse> = req.eventLoop.newPromise()
+        service.mine { block in
+            promise.succeed(result: BlockResponse(block))
+        }
+        return promise.futureResult
+    }
+    
+    func balance(req: Request) throws -> BalanceResponse {
+        guard let address = try? req.parameters.next(String.self) else {
+            throw APIError.missingParameter("No address parameter specified.")
+        }
+        guard let validAddress = Data(hex: address) else {
+            throw APIError.invalidParameter("Specified address is not valid.")
         }
         return BalanceResponse(address: address, balance: service.balance(address: validAddress))
     }
     
-    func mine(req: Request) -> Future<Block> {
-        let promise: EventLoopPromise<Block> = req.eventLoop.newPromise()
-        service.mine(completion: promise.succeed)
-        return promise.futureResult
-    }
-    
     func wallet(req: Request) -> BalanceResponse {
         let address = service.address()
-        return BalanceResponse(address: address.hex, balance: service.balance(address: address))
+        let balance = service.balance(address: address)
+        return BalanceResponse(address: address.hex, balance: balance)
     }
 }
