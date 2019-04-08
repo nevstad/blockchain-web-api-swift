@@ -20,7 +20,3 @@ Once running, the API has the following endpoints:
 * `GET /api/v1/mine` - Mines the next block, adding all verified transactions in the mempool
 
 A great tool for interacting with APIs is [Postman](https://www.getpostman.com/), and once you have it installed you can easily import `Blockchain.postman_collection.json` and get started.
-
-## 🤞🏻 Testing
-
-To run the tests, make sure the `.swift` files found in `Sources/App/Model` are added to the `AppTests` target.
