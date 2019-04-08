@@ -1,12 +1,12 @@
 {
 	"info": {
-		"_postman_id": "99e92457-1c6e-4204-aca3-4f117e25ea5d",
+		"_postman_id": "21578a21-1c7e-4bfd-aa84-7acdd0b89ff5",
 		"name": "Blockchain",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Get Blockchain",
+			"name": "Get blockchain",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -25,44 +25,13 @@
 						"v1",
 						"blockchain"
 					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Add Transactions",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"name": "Content-Type",
-						"type": "text",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "[\n\t{\n\t\t\"sender\": \"Magnus\",\n\t\t\"recipient\": \"VonHanno\",\n\t\t\"value\": 250\n\t},\n\t{\n\t\t\"sender\": \"VonHanno\",\n\t\t\"recipient\": \"Magnus\",\n\t\t\"value\": 100\n\t}\n]\n\n\t\n"
 				},
-				"url": {
-					"raw": "http://localhost:8080/api/v1/send",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"send"
-					]
-				}
+				"description": "Returns the entire blockchain"
 			},
 			"response": []
 		},
 		{
-			"name": "Mempool",
+			"name": "Mine block",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -71,7 +40,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "localhost:8080/api/v1/mempool",
+					"raw": "localhost:8080/api/v1/mine",
 					"host": [
 						"localhost"
 					],
@@ -79,17 +48,55 @@
 					"path": [
 						"api",
 						"v1",
-						"mempool"
+						"mine"
 					]
-				}
+				},
+				"description": "Starts working to mine the next block, addign all transactions in the pool to it when successful"
 			},
 			"response": []
 		},
 		{
-			"name": "Mine Block",
+			"name": "Get balance",
 			"request": {
 				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/balance/2a70666c92f353c3b2547130f7ee74aef4fcf46f24da0583c67f81a52ff13ecd",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"balance",
+						"2a70666c92f353c3b2547130f7ee74aef4fcf46f24da0583c67f81a52ff13ecd"
+					]
+				},
+				"description": "Get the balance of a given address"
+			},
+			"response": []
+		},
+		{
+			"name": "Send transactions",
+			"request": {
+				"method": "POST",
 				"header": [
+					{
+						"key": "params",
+						"value": "{\"view\":\"utilization\",\"time_frame\":{\"to\":\"2019-06-28\",\"from\":\"2019-02-01\"},\"group_by\":[\"user_id\",\"project_state\"],\"filters\":{\"project_state\": { \"operation\" : \"excluding\", values: [\"Confirmed\"]},\"calc_incurred_using\":\"confirmed-unconfirmed\"}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "auth",
+						"value": "UHp2WnBoN1o3b2JJamdvZ2sxR2ZXNTBFZG9rbjRlV0VRWkhYbG5MNGZZb3B2cG83cEo4RXZsSTVYeGxzCmtOVTdpTUp3SXozUVBTWkF3eVJvUjhDWlJUVWxUYmdsVUlzWEk3eHdQYnNjMytjdXNHMUxxK1FBYXVCdgpnZXJIZ0tTSAo=",
+						"type": "text"
+					},
 					{
 						"key": "Content-Type",
 						"name": "Content-Type",
@@ -99,10 +106,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": ""
+					"raw": "[{\n    \"address\": \"7ef9a311285cba4cdd709742a6e0373d66417508c15133d60a72c6f8176c02a2\",\n    \"value\": 0\n}]"
 				},
 				"url": {
-					"raw": "localhost:8080/api/v1/mine/Magnus",
+					"raw": "localhost:8080/api/v1/send",
 					"host": [
 						"localhost"
 					],
@@ -110,15 +117,21 @@
 					"path": [
 						"api",
 						"v1",
-						"mine",
-						"Magnus"
+						"send"
+					],
+					"query": [
+						{
+							"key": "params",
+							"value": "{\"params\":{\"view\":\"time_fees_hours\",\"time_frame\":{\"to\":\"2019-06-28\",\"from\":\"2019-02-01\"},\"group_by\":[\"user_id\",\"project_state\"],\"filters\":{\"project_state\": { \"operation\" : \"excluding\", values: [\"Confirmed\"]},\"calc_incurred_using\":\"confirmed-unconfirmed\"}",
+							"disabled": true
+						}
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Balance (maggs)",
+			"name": "Get wallet",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -127,7 +140,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "localhost:8080/api/v1/balance/Magnus",
+					"raw": "localhost:8080/api/v1/wallet",
 					"host": [
 						"localhost"
 					],
@@ -135,8 +148,7 @@
 					"path": [
 						"api",
 						"v1",
-						"balance",
-						"Magnus"
+						"wallet"
 					]
 				}
 			},

@@ -6,54 +6,57 @@
 //
 
 import Vapor
+import BlockchainSwift
 
 final class BlockchainController {
     let service = BlockchainService()
     
     enum APIError: Error {
         case missingParameter(String)
-    }
-    
-    struct BalanceResponse: Content {
-        let address: String
-        let balance: Double
-        static func invalid() -> BalanceResponse {
-            return BalanceResponse(address: "Invalid", balance: -1)
-        }
-    }
-    
-    func chain(req: Request) -> Blockchain {
-        return service.chain()
-    }
-    
-    func send(req: Request, transaction: Transaction) -> Int {
-        return service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data)
+        case invalidParameter(String)
     }
 
-    func send(req: Request, transactions: [Transaction]) -> [Int] {
+
+    
+    
+    func chain(req: Request) -> BlockchainResponse {
+        return BlockchainResponse(service.chain())
+    }
+    
+    func send(req: Request, transactions: [TransactionRequest]) -> [Int] {
         return transactions.map { transaction in
-            service.send(sender: transaction.sender, recipient: transaction.recipient, value: transaction.value, data: transaction.data) }
-    }
-
-    
-    func mempool(req: Request) -> TransactionPool {
-        return service.chain().mempool
-    }
-
-    func balance(req: Request) -> BalanceResponse {
-        guard let address = try? req.parameters.next(String.self) else {
-            return BalanceResponse.invalid()
+            guard let validAddress = Data(hex: transaction.address) else {
+                return -1
+            }
+            return service.send(recipient: validAddress, value: transaction.value)
         }
-        return BalanceResponse(address: address, balance: service.balance(address: address))
     }
     
-    func mine(req: Request) -> Future<Block> {
-        let promise: EventLoopPromise<Block> = req.eventLoop.newPromise()
-        guard let recipient = try? req.parameters.next(String.self) else {
-            promise.fail(error: APIError.missingParameter("recipient"))
-            return promise.futureResult
+    func mempool(req: Request) -> [TxResponse] {
+        return service.chain().mempool.map { TxResponse($0) }
+    }
+
+    func mine(req: Request) -> Future<BlockResponse> {
+        let promise: EventLoopPromise<BlockResponse> = req.eventLoop.newPromise()
+        service.mine { block in
+            promise.succeed(result: BlockResponse(block))
         }
-        service.mine(recipient: recipient, completion: promise.succeed)
         return promise.futureResult
+    }
+    
+    func balance(req: Request) throws -> BalanceResponse {
+        guard let address = try? req.parameters.next(String.self) else {
+            throw APIError.missingParameter("No address parameter specified.")
+        }
+        guard let validAddress = Data(hex: address) else {
+            throw APIError.invalidParameter("Specified address is not valid.")
+        }
+        return BalanceResponse(address: address, balance: service.balance(address: validAddress))
+    }
+    
+    func wallet(req: Request) -> BalanceResponse {
+        let address = service.address()
+        let balance = service.balance(address: address)
+        return BalanceResponse(address: address.hex, balance: balance)
     }
 }

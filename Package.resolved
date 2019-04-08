@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "BlockchainSwift",
+        "repositoryURL": "https://github.com/nevstad/BlockchainSwift.git",
+        "state": {
+          "branch": "master",
+          "revision": "acab4b38078b6dea9275fe333c5943aea4b7aa06",
+          "version": null
+        }
+      },
+      {
         "package": "Console",
         "repositoryURL": "https://github.com/vapor/console.git",
         "state": {
@@ -15,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/core.git",
         "state": {
           "branch": null,
-          "revision": "727ae2905ebdca162c5da5bfe187c406555859e2",
-          "version": "3.7.3"
+          "revision": "02f1d0d0eabe68f10d1efa0decdfa0e6e737e985",
+          "version": "3.8.0"
         }
       },
       {
@@ -60,8 +69,8 @@
         "repositoryURL": "https://github.com/vapor/http.git",
         "state": {
           "branch": null,
-          "revision": "8da7d475a1a060714766d9ad4b24eb0dae243aab",
-          "version": "3.1.11"
+          "revision": "254a0a0cbf22a02b697a075a0d2ddbb448bb7c87",
+          "version": "3.2.0"
         }
       },
       {
