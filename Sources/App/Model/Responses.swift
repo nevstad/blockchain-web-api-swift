@@ -16,6 +16,7 @@ struct BalanceResponse: Content {
     }
 }
 
+
 struct TxResponse: Content {
     struct TxInput: Content {
         let referencedOutputTxHash: Data
@@ -45,6 +46,11 @@ struct TxResponse: Content {
     }
 }
 
+struct TxsResponse: Content {
+    let txs: [TxResponse]
+}
+
+
 struct BlockResponse: Content {
     let timestamp: UInt32
     let transactions: [TxResponse]
@@ -59,6 +65,11 @@ struct BlockResponse: Content {
         self.previousHash = block.previousHash
     }
 }
+
+struct BlocksResponse: Content {
+    let blocks: [BlockResponse]
+}
+
 
 struct BlockchainResponse: Content {
     let blocks: [BlockResponse]
